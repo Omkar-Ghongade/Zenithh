@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 
 import userNFT from './route/user.nfts.route.js'
+import songs from './route/all.songs.route.js'
 
 dotenv.config();
 // Connect to MongoDB
@@ -23,3 +24,4 @@ app.use(express.json());
 app.use(cors());
 
 app.use('/user', userNFT);
+app.use('/songs', songs);
