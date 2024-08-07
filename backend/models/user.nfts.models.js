@@ -1,9 +1,13 @@
 import mongoose from 'mongoose';
 
 const nftSchema = new mongoose.Schema({
-    name: {
+    address: {
         type: String,
         required: true
+    },
+    name: {
+        type: String,
+        required: true,
     },
     image: {
         type: String,

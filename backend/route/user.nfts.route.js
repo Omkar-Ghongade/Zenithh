@@ -1,8 +1,8 @@
 import express from 'express';
-import { uploadNFTs } from '../controllers/user.nfts.controllers.js';
+import { NFTsOwnerShip } from '../controllers/user.nfts.controllers.js';
 
 const router = express.Router();
 
-router.get('/nfts', uploadNFTs);
+router.post('/nfts', NFTsOwnerShip);
 
 export default router;
