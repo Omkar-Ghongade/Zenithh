@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import Web3 from "@fewcha/web3";
 
 export default function StreamMusic() {
   const [songs, setSongs] = useState([]);
@@ -59,12 +60,35 @@ export default function StreamMusic() {
   };
 
   // Toggle play/pause for the selected song
-  const handlePlayPause = (index) => {
+  const handlePlayPause = async (index) => {
     if (currentSongIndex === index && isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      playSong(index);
+      try {
+        // Payment process
+        const receiverAddress = '0x1a1a4ced2b2c61be8af8c6e7e8936eb7b2034e05c165434ed6d0c2aa565c11b2';
+        const amount = 100000; // 0.1 APTOS in octas (1 APTOS = 10^8 octas)
+
+        const payload = {
+          type: "entry_function_payload",
+          function: "0x1::coin::transfer",
+          type_arguments: ["0x1::aptos_coin::AptosCoin"],
+          arguments: [receiverAddress, amount],
+        };
+
+        const rawTransaction = await window.fewcha.generateTransaction(payload);
+        console.log('Raw transaction:', rawTransaction);
+        if (rawTransaction.status !== 200) throw new Error('Failed to generate transaction');
+
+        const txnHash = await window.fewcha.signAndSubmitTransaction(rawTransaction.data);
+        if (txnHash.status !== 200) throw new Error('Transaction failed');
+
+        // Play the song only if the payment is successful
+        playSong(index);
+      } catch (error) {
+        console.error('Payment failed:', error);
+      }
     }
   };
 
