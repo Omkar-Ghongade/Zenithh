@@ -7,6 +7,8 @@ import Login from './components/Login';
 import MarketPlace from './components/MarketPlace';
 import Profile from './components/Profile';
 import Stream from './components/Stream';
+import StreamMusic from './components/StreamMusic';
+import UploadMusic from './components/UploadMusic';
 
 export default function App() {
   const [balance, setBalance] = useState(null);
@@ -63,6 +65,8 @@ export default function App() {
           <Route path="/profile" element={isAuthenticated ? <Profile /> : <Login connectWallet={connectWallet} />} />
           <Route path="/marketplace" element={isAuthenticated ? <MarketPlace /> : <Login connectWallet={connectWallet} />} />
           <Route path="/stream" element={isAuthenticated ? <Stream /> : <Login connectWallet={connectWallet} />} />
+          <Route path="/stream/music" element={isAuthenticated ? <StreamMusic /> : <Login connectWallet={connectWallet} />} />
+          <Route path="/stream/upload" element={isAuthenticated ? <UploadMusic /> : <Login connectWallet={connectWallet} />} />
           <Route path="/achievements" element={isAuthenticated ? <Achievements /> : <Login connectWallet={connectWallet} />} />
         </Routes>
       </div>

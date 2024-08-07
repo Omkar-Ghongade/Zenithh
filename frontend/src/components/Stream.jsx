@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import Web3 from "@fewcha/web3";
+// src/components/Stream.jsx
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 export default function Stream() {
   const [audioFile, setAudioFile] = useState(null);
@@ -131,67 +131,21 @@ export default function Stream() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Upload Your Music</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Song Name
-          </label>
-          <input
-            type="text"
-            value={songName}
-            onChange={handleSongNameChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Enter song name"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Cover Photo
-          </label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleCoverPhotoChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 text-sm font-bold mb-2">
-            Audio File
-          </label>
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={handleAudioFileChange}
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
-        </div>
-        <div className="mb-4">
-          <button
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-          >
-            Submit
-          </button>
-        </div>
-      </form>
-      {audioFileLink && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold">Uploaded Audio File:</h2>
-          <a href={audioFileLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-            {audioFileLink}
-          </a>
-        </div>
-      )}
-      {coverPhotoLink && (
-        <div className="mt-4">
-          <h2 className="text-xl font-bold">Uploaded Cover Photo:</h2>
-          <a href={coverPhotoLink} target="_blank" rel="noopener noreferrer" className="text-blue-500">
-            {coverPhotoLink}
-          </a>
-        </div>
-      )}
+      <h1 className="text-2xl font-bold mb-4">Stream</h1>
+      <nav className="mb-4">
+        <NavLink
+          to="/stream/music"
+          className={({ isActive }) => `mr-4 p-2 ${isActive ? 'text-blue-500' : 'text-white'}`}
+        >
+          Stream Music
+        </NavLink>
+        <NavLink
+          to="/stream/upload"
+          className={({ isActive }) => `p-2 ${isActive ? 'text-blue-500' : 'text-white'}`}
+        >
+          Upload Music
+        </NavLink>
+      </nav>
     </div>
   );
 }
