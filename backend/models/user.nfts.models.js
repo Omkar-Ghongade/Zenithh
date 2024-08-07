@@ -15,7 +15,7 @@ const nftSchema = new mongoose.Schema({
     },
     audio: {
         type: String,
-        required: true
+        required: true,
     }
 });
 

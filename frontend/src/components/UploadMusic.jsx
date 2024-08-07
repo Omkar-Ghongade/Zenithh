@@ -29,8 +29,8 @@ export default function UploadMusic() {
       const res = await axios.post('https://api.pinata.cloud/pinning/pinFileToIPFS', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          pinata_api_key: 'your_pinata_api_key',
-          pinata_secret_api_key: 'your_pinata_secret_api_key',
+          pinata_api_key: '494f632eb68be9dfe0ed',
+          pinata_secret_api_key: 'ac3528409ced65193e681a3cae46c0d6783424b6a1e9052c873755e971e01098',
         },
       });
       return `https://gateway.pinata.cloud/ipfs/${res.data.IpfsHash}`;
@@ -81,6 +81,7 @@ export default function UploadMusic() {
       if (claimTokenResponse.status !== 200) throw new Error('Failed to claim token');
 
       console.log('NFT Minted Successfully');
+      return userAddress;
     } catch (error) {
       console.error('Error minting NFT:', error);
     }
@@ -94,7 +95,23 @@ export default function UploadMusic() {
       setAudioFileLink(audioLink);
       setCoverPhotoLink(coverLink);
 
-      await mintNFT(coverLink, songName);
+      const userAddress = await mintNFT(coverLink, songName);
+      try{
+        const res = await fetch('http://localhost:3000/user/nfts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            address: userAddress,
+            image: coverLink,
+            audio: audioLink,
+            name: songName,
+          }),
+        });
+      }catch(err){
+        console.log(err);
+      }
     } catch (error) {
       console.error('Error uploading files and minting NFT:', error);
     }
