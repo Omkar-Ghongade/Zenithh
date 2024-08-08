@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FaBars, FaTimes } from 'react-icons/fa';
 import { Button } from '@material-tailwind/react'; // Ensure you import the Button component from Material Tailwind
-import logo from '../assets/zenithlogo.png';
+import logo from '../assets/zenithlogo3.png';
 
 const Navbar = ({ isAuthenticated, connectWallet, disconnectWallet }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -13,9 +13,9 @@ const Navbar = ({ isAuthenticated, connectWallet, disconnectWallet }) => {
   };
 
   return (
-    <nav className="mx-auto mb-12 flex items-center justify-between py-3">
+    <nav className="mx-auto flex items-center justify-between py-3">
       <div className="flex flex-shrink-0 items-center">
-        <img src={logo} alt="MyLogo" className="mx-2 w-10 h-10" />
+        <img src={logo} alt="MyLogo" className="mx-2 w-24 h-24" />
       </div>
       <div className="hidden md:flex m-8 items-center justify-center gap-4 text-xl">
         {isAuthenticated ? (
@@ -53,10 +53,10 @@ const Navbar = ({ isAuthenticated, connectWallet, disconnectWallet }) => {
               Achievements
             </NavLink>
             <Button
-              variant="outlined"
-              color="red"
+              variant="filled"
+              color="blue"
               onClick={disconnectWallet}
-              className="p-2"
+              className="p-2 bg-red-600"
             >
               Logout
             </Button>
@@ -83,7 +83,7 @@ const Navbar = ({ isAuthenticated, connectWallet, disconnectWallet }) => {
         } transition-transform duration-300 ease-in-out`}
       >
         <div className="flex items-center justify-between p-4">
-          <img src={logo} alt="MyLogo" className="w-10 h-10" />
+          <img src={logo} alt="MyLogo" className="w-24 h-24" />
           <button onClick={toggleSidebar}>
             <FaTimes className="text-2xl text-white" />
           </button>
@@ -128,10 +128,10 @@ const Navbar = ({ isAuthenticated, connectWallet, disconnectWallet }) => {
                 Achievements
               </NavLink>
               <Button
-                variant="outlined"
-                color="red"
+                variant="filed"
+                color="blue"
                 onClick={disconnectWallet}
-                className="p-2"
+                className="p-2 bg-red-600 text-base"
               >
                 Logout
               </Button>
