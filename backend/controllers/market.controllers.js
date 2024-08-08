@@ -19,6 +19,15 @@ export const addtoMarket = async (req, res) => {
 }
 
 export const transferOwnership = async (req, res) => {
+    try{
+        const {name, address, nAddress} = req.body;
+        const songData = await song.findOne({name, address});
+        songData.address = nAddress;
+        await songData.save();
+        res.status(201).json({songData});
+    }catch(error){
+
+    }
 }
 
 export const deletefromMarket = async (req, res) => {
