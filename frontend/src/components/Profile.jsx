@@ -4,6 +4,7 @@ import { Card, CardBody, Typography } from '@material-tailwind/react';
 
 const Profile = () => {
   const [myNFTs, setMyNFTs] = useState([]);
+  const [market, setMarket] = useState([]);
   const [isVerified, setIsVerified] = useState(false);
 
   useEffect(() => {
@@ -30,7 +31,7 @@ const Profile = () => {
           body: JSON.stringify({
             address: userAddress,
           }),
-        }); // Ensure the endpoint is correct
+        });
         const data = await res.json();
         console.log(data);
         setMyNFTs(data);
@@ -39,10 +40,32 @@ const Profile = () => {
       }
     };
 
+    const fetchMarket = async () => {
+      try {
+        const user = await window.fewcha.account();
+        const userAddress = user.data.address;
+        const res = await fetch('http://localhost:3000/market/mymarket', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            address: userAddress,
+          }),
+        });
+        const data = await res.json();
+        console.log(data);
+        setMarket(data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
     if (isVerified) {
       fetchMyNFTs();
+      fetchMarket();
     }
-  }, [isVerified]); // Fetch NFTs only after verification
+  }, [isVerified]);
 
   return (
     <div className="flex flex-col justify-center items-center w-full mb-9 px-4">
@@ -69,28 +92,61 @@ const Profile = () => {
       )}
 
       {isVerified && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full">
-          {myNFTs.map((nft) => (
-            <Card key={nft._id} className="h-96 w-68 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300"
-            style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}>
-              <img src={nft.image} alt={nft.name} className="h-48 w-full object-cover" />
-              <CardBody>
-                <Typography variant="h5" className="mb-2 text-white">
-                  {nft.name}
-                </Typography>
-                <Typography className="text-sm text-gray-400 mt-2">
-                  Address: {nft.address}
-                </Typography>
-                <audio controls className="mt-4 w-full">
-                  <source src={nft.audio} type="audio/mpeg" />
-                  Your browser does not support the audio element.
-                </audio>
-              </CardBody>
-            </Card>
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full">
+            <Typography variant="h4" className="mb-4 text-white col-span-full text-center">
+              My Streams
+            </Typography>
+            {myNFTs.map((nft) => (
+              <Card key={nft._id} className="h-96 w-68 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300"
+              style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}>
+                <img src={nft.image} alt={nft.name} className="h-48 w-full object-cover" />
+                <CardBody>
+                  <Typography variant="h5" className="mb-2 text-white">
+                    {nft.name}
+                  </Typography>
+                  <Typography className="text-sm text-gray-400 mt-2">
+                    Address: {nft.address}
+                  </Typography>
+                  <audio controls className="mt-4 w-full">
+                    <source src={nft.audio} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full">
+            <Typography variant="h4" className="mb-4 text-white col-span-full text-center">
+              My Music
+            </Typography>
+            {market.map((item) => (
+              <Card key={item._id} className="h-96 w-68 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300"
+              style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}>
+                <CardBody>
+                  <Typography variant="h5" className="mb-2 text-white">
+                    {item.name}
+                  </Typography>
+                  <Typography className="text-sm text-gray-400 mt-2">
+                    Cost: {item.cost} ETH
+                  </Typography>
+                  <audio controls className="mt-4 w-full">
+                    <source src={item.audiolink} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                </CardBody>
+              </Card>
+            ))}
+          </div>
+
+          <div>
+          <Typography variant="h4" className="mb-4 text-white col-span-full text-center">
+              Achievements
+            </Typography>
+          </div>
+        </>
       )}
-      
     </div>
   );
 };

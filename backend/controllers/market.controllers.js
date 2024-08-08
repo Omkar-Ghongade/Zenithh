@@ -30,12 +30,19 @@ export const transferOwnership = async (req, res) => {
     }
 }
 
-export const deletefromMarket = async (req, res) => {
-}
-
 export const displayMarket = async (req, res) => {
     try{
         const display = await market.find();
+        res.status(200).json(display);
+    }catch(error){
+        res.status(404).json({ message: error.message });
+    }
+}
+
+export const myMarket = async (req, res) => {
+    try{
+        const {address} = req.body;
+        const display = await market.find({address});
         res.status(200).json(display);
     }catch(error){
         res.status(404).json({ message: error.message });
