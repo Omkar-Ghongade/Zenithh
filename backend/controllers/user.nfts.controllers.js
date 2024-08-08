@@ -33,10 +33,13 @@ export const NFTsOwnerShip = async (req, res) => {
         // Save the NFT to the database
         await newNFT.save();
 
+        const stream=0;
+
         const newSong = new song({
             name,
             image,
-            audio
+            audio,
+            stream,
         });
 
         await newSong.save();
@@ -46,5 +49,33 @@ export const NFTsOwnerShip = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'An error occurred while saving the NFT' });
+    }
+}
+
+export const myNFTs = async (req, res) => {
+    try {
+        // Fetch NFTs from the database
+        const nfts = await NFT.find({address: req.body.address});
+
+        // Respond with the NFTs
+        res.json(nfts);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'An error occurred while fetching NFTs' });
+    }
+}
+
+export const incStreams = async (req, res) => {
+    try{
+        const {name} = req.body;
+        const song = await song.findOne({name: name});
+        const nft = await NFT.findOne({name: name});
+        song.streams += 1;
+        nft.streams += 1;
+        await nft.save();
+        await song.save();
+        res.json(song);
+    }catch(err){
+        console.log(err);
     }
 }

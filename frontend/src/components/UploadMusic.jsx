@@ -81,6 +81,7 @@ export default function UploadMusic() {
       if (claimTokenResponse.status !== 200) throw new Error('Failed to claim token');
 
       console.log('NFT Minted Successfully');
+      return userAddress;
     } catch (error) {
       console.error('Error minting NFT:', error);
     }
@@ -94,7 +95,23 @@ export default function UploadMusic() {
       setAudioFileLink(audioLink);
       setCoverPhotoLink(coverLink);
 
-      await mintNFT(coverLink, songName);
+      const userAddress = await mintNFT(coverLink, songName);
+      try{
+        const res = await fetch('http://localhost:3000/user/nfts', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            address: userAddress,
+            image: coverLink,
+            audio: audioLink,
+            name: songName,
+          }),
+        });
+      }catch(err){
+        console.log(err);
+      }
     } catch (error) {
       console.error('Error uploading files and minting NFT:', error);
     }

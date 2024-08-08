@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import Web3 from "@fewcha/web3";
+import { Button, Typography } from '@material-tailwind/react';
+import { FaPlay, FaPause } from 'react-icons/fa';
 
 export default function StreamMusic() {
   const [songs, setSongs] = useState([]);
@@ -10,7 +11,6 @@ export default function StreamMusic() {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
-  // Fetch the list of songs from the server
   useEffect(() => {
     const fetchSongs = async () => {
       try {
@@ -25,7 +25,6 @@ export default function StreamMusic() {
     fetchSongs();
   }, []);
 
-  // Update the audio player with the current song and handle events
   useEffect(() => {
     const handleLoadedMetadata = () => {
       setDuration(audioRef.current.duration);
@@ -39,36 +38,31 @@ export default function StreamMusic() {
     if (audioRef.current) {
       audioRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
       audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
-      audioRef.current.addEventListener('ended', handleNext);
 
       return () => {
         audioRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
         audioRef.current.removeEventListener('timeupdate', handleTimeUpdate);
-        audioRef.current.removeEventListener('ended', handleNext);
       };
     }
   }, [currentSongIndex]);
 
-  // Play the selected song
   const playSong = (index) => {
     if (index !== null && index < songs.length && index >= 0) {
-      audioRef.current.src = songs[index].audio; // Use the audio link from the song object
+      audioRef.current.src = songs[index].audio;
       audioRef.current.play();
       setCurrentSongIndex(index);
       setIsPlaying(true);
     }
   };
 
-  // Toggle play/pause for the selected song
   const handlePlayPause = async (index) => {
     if (currentSongIndex === index && isPlaying) {
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
       try {
-        // Payment process
         const receiverAddress = '0x1a1a4ced2b2c61be8af8c6e7e8936eb7b2034e05c165434ed6d0c2aa565c11b2';
-        const amount = 100000; // 0.1 APTOS in octas (1 APTOS = 10^8 octas)
+        const amount = 100000;
 
         const payload = {
           type: "entry_function_payload",
@@ -78,13 +72,11 @@ export default function StreamMusic() {
         };
 
         const rawTransaction = await window.fewcha.generateTransaction(payload);
-        console.log('Raw transaction:', rawTransaction);
         if (rawTransaction.status !== 200) throw new Error('Failed to generate transaction');
 
         const txnHash = await window.fewcha.signAndSubmitTransaction(rawTransaction.data);
         if (txnHash.status !== 200) throw new Error('Transaction failed');
 
-        // Play the song only if the payment is successful
         playSong(index);
       } catch (error) {
         console.error('Payment failed:', error);
@@ -92,28 +84,12 @@ export default function StreamMusic() {
     }
   };
 
-  // Play the next song in the list
-  const handleNext = () => {
-    if (currentSongIndex !== null && currentSongIndex < songs.length - 1) {
-      playSong(currentSongIndex + 1);
-    }
-  };
-
-  // Play the previous song in the list
-  const handlePrevious = () => {
-    if (currentSongIndex !== null && currentSongIndex > 0) {
-      playSong(currentSongIndex - 1);
-    }
-  };
-
-  // Update the progress bar based on the current time of the audio
   const updateProgress = () => {
     if (audioRef.current && progressBarRef.current) {
       progressBarRef.current.value = (audioRef.current.currentTime / audioRef.current.duration) * 100;
     }
   };
 
-  // Handle changes to the progress bar (seek functionality)
   const handleProgressChange = (event) => {
     const seekTime = (event.target.value / 100) * audioRef.current.duration;
     audioRef.current.currentTime = seekTime;
@@ -122,32 +98,44 @@ export default function StreamMusic() {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Stream Music</h1>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <Typography variant="h3" className="text-center mb-8 text-white">
+        Stream Music
+      </Typography>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {songs.map((song, index) => (
-          <div key={song.id} className="p-4 border rounded shadow">
-            <img src={song.image} alt={song.name} className="w-full h-40 object-cover mb-2" />
-            <h2 className="text-lg font-semibold">{song.name}</h2>
-            <button
-              onClick={() => handlePlayPause(index)}
-              className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-            >
-              {currentSongIndex === index && isPlaying ? 'Pause' : 'Play'}
-            </button>
+          <div key={song.id} className="bg-neutral-950 p-4 rounded-lg shadow-lg" style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}>
+            <img src={song.image} alt={song.name} className="h-48 w-full object-cover rounded-t-lg" />
+            <div className="p-4">
+              <Typography variant="h5" className="text-white mb-2">
+                {song.name}
+              </Typography>
+              <Button
+                color="blue"
+                variant="filled"
+                className="w-full bg-purple-700 hover:bg-purple-950"
+                onClick={() => handlePlayPause(index)}
+              >
+                {currentSongIndex === index && isPlaying ? 'Pause' : 'Play'}
+              </Button>
+            </div>
           </div>
         ))}
       </div>
       {currentSongIndex !== null && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-800 text-white p-4 flex items-center justify-between">
-          <button
-            onClick={handlePrevious}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Previous
-          </button>
-          <div className="flex flex-col items-center">
-            <img src={songs[currentSongIndex].image} alt={songs[currentSongIndex].title} className="w-20 h-20 object-cover mb-2" />
-            <h2 className="text-lg">{songs[currentSongIndex].title}</h2>
+        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white p-4 flex items-center justify-between shadow-lg">
+          <div className="flex items-center">
+            <img src={songs[currentSongIndex].image} alt={songs[currentSongIndex].title} className="w-16 h-16 object-cover mr-4" />
+            <div>
+              <Typography variant="h6" className="text-white">{songs[currentSongIndex].title}</Typography>
+              <Typography variant="body2" className="text-gray-400">{songs[currentSongIndex].artist}</Typography>
+            </div>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button onClick={() => handlePlayPause(currentSongIndex)} color="blue" variant="filled" className="bg-purple-700 hover:bg-purple-950 p-3 rounded-full">
+              {isPlaying ? <FaPause /> : <FaPlay />}
+            </Button>
+          </div>
+          <div className="flex flex-col items-center flex-grow mx-4">
             <input
               ref={progressBarRef}
               type="range"
@@ -156,19 +144,13 @@ export default function StreamMusic() {
               step="1"
               value={(currentTime / duration) * 100}
               onChange={handleProgressChange}
-              className="w-full mt-2"
+              className="w-full mt-2 appearance-none bg-gray-800 h-1 rounded-lg"
             />
-            <div className="flex justify-between w-full text-xs mt-1">
+            <div className="flex justify-between w-full text-xs mt-1 text-white">
               <span>{Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')}</span>
               <span>{Math.floor(duration / 60)}:{Math.floor(duration % 60).toString().padStart(2, '0')}</span>
             </div>
           </div>
-          <button
-            onClick={handleNext}
-            className="px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            Next
-          </button>
         </div>
       )}
     </div>

@@ -16,6 +16,10 @@ const nftSchema = new mongoose.Schema({
     audio: {
         type: String,
         required: true,
+    },
+    streams: {
+        type: Number,
+        default: 0
     }
 });
 
