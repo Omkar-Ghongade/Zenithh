@@ -68,12 +68,12 @@ export const myNFTs = async (req, res) => {
 export const incStreams = async (req, res) => {
     try{
         const {name} = req.body;
-        const song = await song.findOne({name: name});
-        const nft = await NFT.findOne({name: name});
-        song.streams += 1;
-        nft.streams += 1;
-        await nft.save();
-        await song.save();
+        const songs = await song.findOne({name: req.body.name});
+        const nfts = await NFT.findOne({name: req.body.name});
+        songs.streams += 1;
+        nfts.streams += 1;
+        await nfts.save();
+        await songs.save();
         res.json(song);
     }catch(err){
         console.log(err);

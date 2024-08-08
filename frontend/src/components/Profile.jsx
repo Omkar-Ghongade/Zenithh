@@ -90,6 +90,20 @@ const Profile = () => {
           ))}
         </div>
       )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full">
+        {myNFTs.map((nft) => (
+          <div key={nft._id} className="bg-white bg-opacity-10 p-4 rounded-lg shadow-md flex flex-col items-center">
+            <img src={nft.image} alt={nft.name} className="w-full h-48 object-cover rounded-lg" />
+            <h2 className="text-xl font-semibold text-white mt-4">{nft.name}</h2>
+            <p className="text-sm text-gray-400 mt-2">Address: {nft.address}</p>
+            <p className="text-sm text-gray-400">Streams: {nft.streams}</p>
+            <audio controls className="mt-4 w-full">
+              <source src={nft.audio} type="audio/mpeg" />
+              Your browser does not support the audio element.
+            </audio>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

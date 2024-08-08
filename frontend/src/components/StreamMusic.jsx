@@ -46,10 +46,27 @@ export default function StreamMusic() {
     }
   }, [currentSongIndex]);
 
-  const playSong = (index) => {
+  const playSong = async (index) => {
     if (index !== null && index < songs.length && index >= 0) {
       audioRef.current.src = songs[index].audio;
+      try{
+        const response = await fetch('http://localhost:3000/user/incstreams', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: songs[index].name,
+          }),
+        });
+        const data = await response.json();
+        console.log(data);
+      }catch(err){
+        console.log(err);
+      }
+      
       audioRef.current.play();
+      
       setCurrentSongIndex(index);
       setIsPlaying(true);
     }
@@ -76,6 +93,8 @@ export default function StreamMusic() {
 
         const txnHash = await window.fewcha.signAndSubmitTransaction(rawTransaction.data);
         if (txnHash.status !== 200) throw new Error('Transaction failed');
+
+        
 
         playSong(index);
       } catch (error) {
