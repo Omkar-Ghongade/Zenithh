@@ -58,6 +58,7 @@ const Profile = () => {
             <img src={nft.image} alt={nft.name} className="w-full h-48 object-cover rounded-lg" />
             <h2 className="text-xl font-semibold text-white mt-4">{nft.name}</h2>
             <p className="text-sm text-gray-400 mt-2">Address: {nft.address}</p>
+            <p className="text-sm text-gray-400">Streams: {nft.streams}</p>
             <audio controls className="mt-4 w-full">
               <source src={nft.audio} type="audio/mpeg" />
               Your browser does not support the audio element.
