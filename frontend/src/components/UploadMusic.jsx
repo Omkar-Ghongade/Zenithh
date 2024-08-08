@@ -61,7 +61,7 @@ export default function UploadMusic() {
         1
       );
 
-      if (createTokenResponse.status !== 200) throw new Error('Failed to create token');
+      if (createTokenResponse.status !== 200) throw new Error(createTokenResponse);
 
       const offerTokenResponse = await window.fewcha.token.offerToken(
         userAddress,
