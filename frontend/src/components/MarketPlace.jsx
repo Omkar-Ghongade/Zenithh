@@ -8,6 +8,7 @@ export default function MarketPlace() {
   const [address, setAddress] = useState('');
   const [cost, setCost] = useState('');
   const [market, setMarket] = useState([]);
+  const [userAddress, setUserAddress] = useState('');
   const audioRefs = useRef([]);
 
   useEffect(() => {
@@ -22,7 +23,17 @@ export default function MarketPlace() {
       }
     };
 
+    const getUserAddress = async () => {
+      try {
+        const user = await window.fewcha.account();
+        setUserAddress(user.data.address);
+      } catch (err) {
+        console.error('Error getting user address:', err);
+      }
+    };
+
     fetchData();
+    getUserAddress();
   }, []);
 
   const handleSellButtonClick = () => {
@@ -98,13 +109,12 @@ export default function MarketPlace() {
   const handleBuyButtonClick = async (item) => {
     try {
       const receiverAddress = item.address;
-      const amount = item.cost*100000;
-      
+      const amount = item.cost * 100000;
 
       const payload = {
-        type: "entry_function_payload",
-        function: "0x1::coin::transfer",
-        type_arguments: ["0x1::aptos_coin::AptosCoin"],
+        type: 'entry_function_payload',
+        function: '0x1::coin::transfer',
+        type_arguments: ['0x1::aptos_coin::AptosCoin'],
         arguments: [receiverAddress, amount],
       };
 
@@ -117,7 +127,7 @@ export default function MarketPlace() {
       const user = await window.fewcha.account();
       const userAddress = user.data.address;
 
-      try{
+      try {
         const res = await fetch('http://localhost:3000/market/transferownership', {
           method: 'POST',
           headers: {
@@ -130,14 +140,12 @@ export default function MarketPlace() {
           }),
         });
         console.log('Success:', await res.json());
-      }catch(err){
+      } catch (err) {
         console.log(err);
       }
-
     } catch (error) {
       console.error('Payment failed:', error);
     }
-
   };
 
   return (
@@ -224,27 +232,29 @@ export default function MarketPlace() {
       <div className="my-8">
         {market.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {market.map((item, index) => (
-              <div key={index} className="bg-white p-4 rounded shadow-md">
-                <h2 className="text-xl font-bold mb-2">{item.name}</h2>
-                <audio
-                  ref={(el) => (audioRefs.current[index] = el)}
-                  controls
-                  className="mb-2"
-                  onTimeUpdate={() => handleTimeUpdate(index)}
-                >
-                  <source src={item.audio} type="audio/mp3" />
-                  Your browser does not support the audio element.
-                </audio>
-                <p className="text-gray-700 mb-2">Cost: {item.cost} APTOS</p>
-                <button
-                  className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
-                  onClick={() => handleBuyButtonClick(item)}
-                >
-                  Buy
-                </button>
-              </div>
-            ))}
+            {market
+              .filter((item) => item.address !== userAddress)
+              .map((item, index) => (
+                <div key={index} className="bg-white p-4 rounded shadow-md">
+                  <h2 className="text-xl font-bold mb-2">{item.name}</h2>
+                  <audio
+                    ref={(el) => (audioRefs.current[index] = el)}
+                    controls
+                    className="mb-2"
+                    onTimeUpdate={() => handleTimeUpdate(index)}
+                  >
+                    <source src={item.audio} type="audio/mp3" />
+                    Your browser does not support the audio element.
+                  </audio>
+                  <p className="text-gray-700 mb-2">Cost: {item.cost} APTOS</p>
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-700"
+                    onClick={() => handleBuyButtonClick(item)}
+                  >
+                    Buy
+                  </button>
+                </div>
+              ))}
           </div>
         ) : (
           <p className="text-center text-gray-500">No music available in the marketplace.</p>
