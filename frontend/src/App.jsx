@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -9,6 +8,12 @@ import Profile from './components/Profile';
 import Stream from './components/Stream';
 import StreamMusic from './components/StreamMusic';
 import UploadMusic from './components/UploadMusic';
+import BuyMusic from './components/BuyMusic';   // Import BuyMusic component
+import SellMusic from './components/SellMusic'; // Import SellMusic component
+import MyStreams from './components/MyStreams';
+import MyMusic from './components/MyMusic';
+import MyAchievements from './components/MyAchievements';
+
 
 export default function App() {
   const [balance, setBalance] = useState(null);
@@ -63,7 +68,12 @@ export default function App() {
         <Routes>
           <Route path="/" element={isAuthenticated ? <Profile /> : <Login connectWallet={connectWallet} />} />
           <Route path="/profile" element={isAuthenticated ? <Profile /> : <Login connectWallet={connectWallet} />} />
+          <Route path="/profile/streams" element={isAuthenticated ? <MyStreams /> : <Login connectWallet={connectWallet} />} />
+          <Route path="/profile/music" element={isAuthenticated ? <MyMusic /> : <Login connectWallet={connectWallet} />} />
+          <Route path="/profile/achievements" element={isAuthenticated ? <MyAchievements /> : <Login connectWallet={connectWallet} />} />
           <Route path="/marketplace" element={isAuthenticated ? <MarketPlace /> : <Login connectWallet={connectWallet} />} />
+          <Route path="/marketplace/buy" element={isAuthenticated ? <BuyMusic /> : <Login connectWallet={connectWallet} />} />
+          <Route path="/marketplace/sell" element={isAuthenticated ? <SellMusic /> : <Login connectWallet={connectWallet} />} />
           <Route path="/stream" element={isAuthenticated ? <Stream /> : <Login connectWallet={connectWallet} />} />
           <Route path="/stream/music" element={isAuthenticated ? <StreamMusic /> : <Login connectWallet={connectWallet} />} />
           <Route path="/stream/upload" element={isAuthenticated ? <UploadMusic /> : <Login connectWallet={connectWallet} />} />

@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, Typography } from '@material-tailwind/react';
+import { Card, CardBody, Typography, Button } from '@material-tailwind/react';
 import { FaPlay, FaPause } from 'react-icons/fa';
 
 export default function StreamMusic() {
   const [songs, setSongs] = useState([]);
   const [currentSongIndex, setCurrentSongIndex] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef(new Audio());
-  const progressBarRef = useRef(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
+  const audioRefs = useRef([]);
+  const [currentTime, setCurrentTime] = useState([]);
+  const [duration, setDuration] = useState([]);
 
   useEffect(() => {
     const fetchSongs = async () => {
@@ -26,30 +25,37 @@ export default function StreamMusic() {
   }, []);
 
   useEffect(() => {
-    const handleLoadedMetadata = () => {
-      setDuration(audioRef.current.duration);
-    };
-
-    const handleTimeUpdate = () => {
-      setCurrentTime(audioRef.current.currentTime);
-      updateProgress();
-    };
-
-    if (audioRef.current) {
-      audioRef.current.addEventListener('loadedmetadata', handleLoadedMetadata);
-      audioRef.current.addEventListener('timeupdate', handleTimeUpdate);
-
-      return () => {
-        audioRef.current.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        audioRef.current.removeEventListener('timeupdate', handleTimeUpdate);
+    if (currentSongIndex !== null) {
+      const handleLoadedMetadata = () => {
+        const newDuration = [...duration];
+        newDuration[currentSongIndex] = audioRefs.current[currentSongIndex].duration;
+        setDuration(newDuration);
       };
+
+      const handleTimeUpdate = () => {
+        const newCurrentTime = [...currentTime];
+        newCurrentTime[currentSongIndex] = audioRefs.current[currentSongIndex].currentTime;
+        setCurrentTime(newCurrentTime);
+        updateProgress(currentSongIndex);
+      };
+
+      const audioRef = audioRefs.current[currentSongIndex];
+      if (audioRef) {
+        audioRef.addEventListener('loadedmetadata', handleLoadedMetadata);
+        audioRef.addEventListener('timeupdate', handleTimeUpdate);
+
+        return () => {
+          audioRef.removeEventListener('loadedmetadata', handleLoadedMetadata);
+          audioRef.removeEventListener('timeupdate', handleTimeUpdate);
+        };
+      }
     }
   }, [currentSongIndex]);
 
   const playSong = async (index) => {
     if (index !== null && index < songs.length && index >= 0) {
-      audioRef.current.src = songs[index].audio;
-      try{
+      audioRefs.current[index].src = songs[index].audio;
+      try {
         const response = await fetch('http://localhost:3000/user/incstreams', {
           method: 'POST',
           headers: {
@@ -61,12 +67,10 @@ export default function StreamMusic() {
         });
         const data = await response.json();
         console.log(data);
-      }catch(err){
+      } catch (err) {
         console.log(err);
       }
-      
-      audioRef.current.play();
-      
+      audioRefs.current[index].play();
       setCurrentSongIndex(index);
       setIsPlaying(true);
     }
@@ -74,7 +78,7 @@ export default function StreamMusic() {
 
   const handlePlayPause = async (index) => {
     if (currentSongIndex === index && isPlaying) {
-      audioRef.current.pause();
+      audioRefs.current[index].pause();
       setIsPlaying(false);
     } else {
       try {
@@ -94,8 +98,6 @@ export default function StreamMusic() {
         const txnHash = await window.fewcha.signAndSubmitTransaction(rawTransaction.data);
         if (txnHash.status !== 200) throw new Error('Transaction failed');
 
-        
-
         playSong(index);
       } catch (error) {
         console.error('Payment failed:', error);
@@ -103,75 +105,81 @@ export default function StreamMusic() {
     }
   };
 
-  const updateProgress = () => {
-    if (audioRef.current && progressBarRef.current) {
-      progressBarRef.current.value = (audioRef.current.currentTime / audioRef.current.duration) * 100;
+  const updateProgress = (index) => {
+    if (audioRefs.current[index] && audioRefs.current[index].duration) {
+      const progressBar = document.getElementById(`progress-bar-${index}`);
+      progressBar.value = (audioRefs.current[index].currentTime / audioRefs.current[index].duration) * 100;
     }
   };
 
-  const handleProgressChange = (event) => {
-    const seekTime = (event.target.value / 100) * audioRef.current.duration;
-    audioRef.current.currentTime = seekTime;
-    setCurrentTime(seekTime);
+  const handleProgressChange = (index, event) => {
+    const seekTime = (event.target.value / 100) * audioRefs.current[index].duration;
+    audioRefs.current[index].currentTime = seekTime;
+    const newCurrentTime = [...currentTime];
+    newCurrentTime[index] = seekTime;
+    setCurrentTime(newCurrentTime);
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <Typography variant="h3" className="text-center mb-8 text-white">
+    <div className="container my-8 justify-items-center">
+      <Typography variant="h3" className="text-center mb-8 text-white ">
         Stream Music
       </Typography>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 ml-3 mr-3">
         {songs.map((song, index) => (
-          <div key={song.id} className="bg-neutral-950 p-4 rounded-lg shadow-lg" style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}>
-            <img src={song.image} alt={song.name} className="h-48 w-full object-cover rounded-t-lg" />
-            <div className="p-4">
-              <Typography variant="h5" className="text-white mb-2">
+          <Card
+            key={song.id}
+            className="h-auto w-68 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300 p-4"
+            style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}
+          >
+            <img src={song.image} alt={song.name} className="h-40 w-full object-cover mb-4" />
+            <CardBody className="p-0">
+              <Typography variant="h5" className="mb-2 text-white">
                 {song.name}
               </Typography>
+              <Typography className="text-sm text-gray-400 mt-2 mb-4">
+                Artist: {song.artist}
+              </Typography>
+              <div className="custom-audio-player mb-4">
+                <audio
+                  ref={(el) => (audioRefs.current[index] = el)}
+                  src={song.audio}
+                  onTimeUpdate={() => handleTimeUpdate(index)}
+                ></audio>
+                <div className="controls flex items-center justify-between">
+                  <button
+                    id={`play-button-${index}`}
+                    className="bg-transparent p-0 m-0 focus:outline-none"
+                    onClick={() => handlePlayPause(index)}
+                  >
+                    {currentSongIndex === index && isPlaying ? <FaPause /> : <FaPlay />}
+                  </button>
+                  <input
+                    id={`progress-bar-${index}`}
+                    type="range"
+                    className="progress-bar w-full mx-4"
+                    onChange={(e) => handleProgressChange(index, e)}
+                    style={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                      accentColor: '#fff',
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="text-xs text-white flex justify-between">
+                <span>{Math.floor((currentTime[index] || 0) / 60)}:{Math.floor((currentTime[index] || 0) % 60).toString().padStart(2, '0')}</span>
+                <span>{Math.floor((duration[index] || 0) / 60)}:{Math.floor((duration[index] || 0) % 60).toString().padStart(2, '0')}</span>
+              </div>
               <Button
-                color="blue"
-                variant="filled"
-                className="w-full bg-purple-700 hover:bg-purple-950"
+                className="w-full bg-purple-700 text-white py-2 rounded hover:bg-purple-900 mt-4"
                 onClick={() => handlePlayPause(index)}
               >
                 {currentSongIndex === index && isPlaying ? 'Pause' : 'Play'}
               </Button>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
         ))}
       </div>
-      {currentSongIndex !== null && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white p-4 flex items-center justify-between shadow-lg">
-          <div className="flex items-center">
-            <img src={songs[currentSongIndex].image} alt={songs[currentSongIndex].title} className="w-16 h-16 object-cover mr-4" />
-            <div>
-              <Typography variant="h6" className="text-white">{songs[currentSongIndex].title}</Typography>
-              <Typography variant="body2" className="text-gray-400">{songs[currentSongIndex].artist}</Typography>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Button onClick={() => handlePlayPause(currentSongIndex)} color="blue" variant="filled" className="bg-purple-700 hover:bg-purple-950 p-3 rounded-full">
-              {isPlaying ? <FaPause /> : <FaPlay />}
-            </Button>
-          </div>
-          <div className="flex flex-col items-center flex-grow mx-4">
-            <input
-              ref={progressBarRef}
-              type="range"
-              min="0"
-              max="100"
-              step="1"
-              value={(currentTime / duration) * 100}
-              onChange={handleProgressChange}
-              className="w-full mt-2 appearance-none bg-gray-800 h-1 rounded-lg"
-            />
-            <div className="flex justify-between w-full text-xs mt-1 text-white">
-              <span>{Math.floor(currentTime / 60)}:{Math.floor(currentTime % 60).toString().padStart(2, '0')}</span>
-              <span>{Math.floor(duration / 60)}:{Math.floor(duration % 60).toString().padStart(2, '0')}</span>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -1,154 +1,95 @@
-import React, { useEffect, useState } from 'react';
-import AnonAadhaarVerification from './AnonAadhaarVerification';
-import { Card, CardBody, Typography } from '@material-tailwind/react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Card, CardBody, CardFooter, Button, Typography } from '@material-tailwind/react';
+import myStreamsImage from '../assets/myStreams.jpg'; // Replace with your image path
+import myMusicImage from '../assets/myMusic.jpg'; // Replace with your image path
+import myAchievementsImage from '../assets/myAchievements.jpg'; // Replace with your image path
 
-const Profile = () => {
-  const [myNFTs, setMyNFTs] = useState([]);
-  const [market, setMarket] = useState([]);
-  const [isVerified, setIsVerified] = useState(false);
+export default function Profile() {
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkVerificationStatus = async () => {
-      const aadhaar = localStorage.getItem('anonAadhaar');
-      if (aadhaar) {
-        setIsVerified(true);
-      }
-    };
-
-    checkVerificationStatus();
-  }, []);
-
-  useEffect(() => {
-    const fetchMyNFTs = async () => {
-      try {
-        const user = await window.fewcha.account();
-        const userAddress = user.data.address;
-        const res = await fetch('http://localhost:3000/user/mynfts', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            address: userAddress,
-          }),
-        });
-        const data = await res.json();
-        console.log(data);
-        setMyNFTs(data);
-      } catch (error) {
-        console.error('Error fetching NFTs:', error);
-      }
-    };
-
-    const fetchMarket = async () => {
-      try {
-        const user = await window.fewcha.account();
-        const userAddress = user.data.address;
-        const res = await fetch('http://localhost:3000/market/mymarket', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            address: userAddress,
-          }),
-        });
-        const data = await res.json();
-        console.log(data);
-        setMarket(data);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    if (isVerified) {
-      fetchMyNFTs();
-      fetchMarket();
-    }
-  }, [isVerified]);
+  const handleNavigation = (path) => {
+    navigate(path);
+  };
 
   return (
-    <div className="flex flex-col justify-center items-center w-full mb-9 px-4">
-      {!isVerified && (
-        <div className="bg-[#303030] bg-opacity-20 backdrop-blur-lg rounded-xl shadow-lg max-w-6xl mt-4">
-          <div className="rounded-lg flex flex-col md:flex-row items-center">
-            <div className="md:w-1/2 w-full flex flex-col justify-center space-y-6 p-6 md:p-9">
-              <h1 className="text-3xl font-bold text-white text-center md:text-left">
-                Anon Aadhaar uses zero-knowledge circuits to verify this signature and generate proof of it.
-              </h1>
-              <p className="text-[#B0B0B0] text-center md:text-left">
-                Verifier confirms Aadhaar's validity and revealed age, state, gender.
-              </p>
-              <AnonAadhaarVerification onVerified={() => setIsVerified(true)} />
-              <p className="text-gray-600 text-sm text-center md:text-left">
-                By signing up, you agree to the <a href="#" className="text-blue-500">Terms of Service</a> and <a href="#" className="text-blue-500">Privacy Policy</a>, including <a href="#" className="text-blue-500">cookie use</a>.
-              </p>
-            </div>
-            <div className="md:w-1/2 w-full mt-6 md:mt-0 flex justify-center items-center">
-              <img src="src/assets/Annon.png" alt="Signup Illustration" className="shadow-lg rounded-r-lg h-64 md:h-96" />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {isVerified && (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full">
-            <Typography variant="h4" className="mb-4 text-white col-span-full text-center">
+    <div className="container mx-auto p-4">
+      <div className="flex flex-col items-center md:flex-row justify-around mt-8 space-y-4 md:space-y-0 md:space-x-4">
+        <Card
+          className="w-80 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300 rounded-lg"
+          style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}
+        >
+          <img src={myStreamsImage} alt="My Streams" className="h-48 w-full object-cover rounded-lg" />
+          <CardBody>
+            <Typography variant="h3" className="mb-2 text-white">
               My Streams
             </Typography>
-            {myNFTs.map((nft) => (
-              <Card key={nft._id} className="h-96 w-68 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300"
-              style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}>
-                <img src={nft.image} alt={nft.name} className="h-48 w-full object-cover" />
-                <CardBody>
-                  <Typography variant="h5" className="mb-2 text-white">
-                    {nft.name}
-                  </Typography>
-                  <Typography className="text-sm text-gray-400 mt-2">
-                    Address: {nft.address}
-                  </Typography>
-                  <audio controls className="mt-4 w-full">
-                    <source src={nft.audio} type="audio/mpeg" />
-                    Your browser does not support the audio element.
-                  </audio>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
+            <Typography>
+              View and manage your streams.
+            </Typography>
+          </CardBody>
+          <CardFooter>
+            <Button
+              color="blue"
+              variant="filled"
+              className="w-full bg-purple-700 hover:bg-purple-950"
+              onClick={() => handleNavigation('/profile/streams')}
+            >
+              Go to My Streams
+            </Button>
+          </CardFooter>
+        </Card>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-6 w-full">
-            <Typography variant="h4" className="mb-4 text-white col-span-full text-center">
+        <Card
+          className="w-80 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300 rounded-lg"
+          style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}
+        >
+          <img src={myMusicImage} alt="My Music" className="h-48 w-full object-cover rounded-lg" />
+          <CardBody>
+            <Typography variant="h3" className="mb-2 text-white">
               My Music
             </Typography>
-            {market.map((item) => (
-              <Card key={item._id} className="h-96 w-68 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300"
-              style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}>
-                <CardBody>
-                  <Typography variant="h5" className="mb-2 text-white">
-                    {item.name}
-                  </Typography>
-                  <Typography className="text-sm text-gray-400 mt-2">
-                    Cost: {item.cost} ETH
-                  </Typography>
-                  <audio controls className="mt-4 w-full">
-                    <source src={item.audiolink} type="audio/mpeg" />
-                    Your browser does not support the audio element.
-                  </audio>
-                </CardBody>
-              </Card>
-            ))}
-          </div>
-
-          <div>
-          <Typography variant="h4" className="mb-4 text-white col-span-full text-center">
-              Achievements
+            <Typography>
+              View and manage your music collection.
             </Typography>
-          </div>
-        </>
-      )}
+          </CardBody>
+          <CardFooter>
+            <Button
+              color="blue"
+              variant="filled"
+              className="w-full bg-purple-700 hover:bg-purple-950"
+              onClick={() => handleNavigation('/profile/music')}
+            >
+              Go to My Music
+            </Button>
+          </CardFooter>
+        </Card>
+
+        <Card
+          className="w-80 bg-neutral-950 hover:drop-shadow-2xl hover:shadow-purple-300 rounded-lg"
+          style={{ background: 'radial-gradient(190% 160% at 30% 10%, #000 40%, #63e 100%)' }}
+        >
+          <img src={myAchievementsImage} alt="My Achievements" className="h-48 w-full object-cover rounded-lg" />
+          <CardBody>
+            <Typography variant="h3" className="mb-2 text-white">
+              My Achievements
+            </Typography>
+            <Typography>
+              View your achievements.
+            </Typography>
+          </CardBody>
+          <CardFooter>
+            <Button
+              color="blue"
+              variant="filled"
+              className="w-full bg-purple-700 hover:bg-purple-950"
+              onClick={() => handleNavigation('/profile/achievements')}
+            >
+              Go to My Achievements
+            </Button>
+          </CardFooter>
+        </Card>
+      </div>
     </div>
   );
-};
-
-export default Profile;
+}
